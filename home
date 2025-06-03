@@ -1,0 +1,34 @@
+from sympy import symbols 
+from sympy.logic.boolalg import And, Or, Not 
+ 
+# Define propositional variables 
+M = symbols("MotionDetected") 
+D = symbols("DoorOpen") 
+T = symbols("TemperatureDrop") 
+O = symbols("OccupancyChange") 
+N = symbols("NewDevice") 
+ 
+# Define inference rules 
+rules = { 
+    "LightsOn": M,  # If motion detected, turn on lights 
+    "HeaterOn": T,  # If temperature drops, turn on heater 
+    "SecurityAlert": D,  # If door open, trigger security alert 
+    "UpdateOccupancy": O,  # If occupancy changes, update home settings 
+    "ConfigureDevice": N   # If new device added, configure it 
+} 
+ 
+# Function to infer actions based on sensor input 
+def infer_actions(sensor_data): 
+    actions = [] 
+22 
+ 
+    for action, condition in rules.items(): 
+        if condition in sensor_data: 
+            actions.append(action) 
+    return actions 
+ 
+# Simulating dynamic sensor inputs 
+sensor_data = {M, T, O}  # Motion detected, temperature drop, occupancy change 
+actions = infer_actions(sensor_data) 
+ 
+print("Smart Home Actions Taken:", actions)
