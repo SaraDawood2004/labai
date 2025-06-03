@@ -1,0 +1,58 @@
+import random
+
+# Cities to deliver
+cities = ["A", "B", "C", "D", "E", "F", "G", "H"]
+
+# Create a list of random routes (initial population)
+def create_population(size):
+    population = []
+    for _ in range(size):
+        route = cities[:]
+        random.shuffle(route)
+        population.append(route)
+    return population
+
+# Calculate how good a route is (smaller jumps between letters is better)
+def fitness(route):
+    score = 0
+    for i in range(len(route) - 1):
+        score -= abs(ord(route[i]) - ord(route[i + 1]))
+    return score
+
+# Select 2 best routes
+def select(population):
+    return sorted(population, key=fitness, reverse=True)[:2]
+
+# Crossover: create two new routes by combining halves of parents
+def crossover(p1, p2):
+    half = len(p1) // 2
+    child1 = p1[:half] + [c for c in p2 if c not in p1[:half]]
+    child2 = p2[:half] + [c for c in p1 if c not in p2[:half]]
+    return child1, child2
+
+# Mutation: swap two cities randomly
+def mutate(route):
+    i, j = random.sample(range(len(route)), 2)
+    route[i], route[j] = route[j], route[i]
+    return route
+
+# Main function
+def find_best_route(generations, pop_size):
+    population = create_population(pop_size)
+
+    for _ in range(generations):
+        parents = select(population)
+        new_population = []
+
+        for _ in range(pop_size // 2):
+            child1, child2 = crossover(parents[0], parents[1])
+            new_population.append(mutate(child1))
+            new_population.append(mutate(child2))
+
+        population = new_population
+
+    return select(population)[0]
+
+# Run the algorithm
+best = find_best_route(30, 10)
+print("Best Route Found:", best)
