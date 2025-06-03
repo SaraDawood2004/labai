@@ -1,0 +1,72 @@
+import math
+
+X = "X"
+O = "O"
+EMPTY = " "
+
+board = [
+    [X, O, X],
+    [O, X, EMPTY],
+    [O, EMPTY, EMPTY]
+]
+
+def check_winner(board):
+    for line in [
+        *board,  # rows
+        *zip(*board),  # columns
+        [board[i][i] for i in range(3)],  # main diagonal
+        [board[i][2-i] for i in range(3)]  # anti-diagonal
+    ]:
+        if line[0] != EMPTY and all(cell == line[0] for cell in line):
+            return line[0]
+    return None
+
+def is_full(board):
+    return all(cell != EMPTY for row in board for cell in row)
+
+def alpha_beta(board, depth, alpha, beta, is_max_turn):
+    winner = check_winner(board)
+    if winner == X:
+        return 10 - depth
+    elif winner == O:
+        return depth - 10
+    elif is_full(board):
+        return 0
+
+    best = -math.inf if is_max_turn else math.inf
+
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] == EMPTY:
+                board[i][j] = X if is_max_turn else O
+                score = alpha_beta(board, depth+1, alpha, beta, not is_max_turn)
+                board[i][j] = EMPTY
+
+                if is_max_turn:
+                    best = max(best, score)
+                    alpha = max(alpha, score)
+                else:
+                    best = min(best, score)
+                    beta = min(beta, score)
+
+                if beta <= alpha:
+                    break
+    return best
+
+def best_move(board):
+    move = None
+    best_score = -math.inf
+
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] == EMPTY:
+                board[i][j] = X
+                score = alpha_beta(board, 0, -math.inf, math.inf, False)
+                board[i][j] = EMPTY
+
+                if score > best_score:
+                    best_score = score
+                    move = (i, j)
+    return move
+
+print("Best move for X is:", best_move(board))
