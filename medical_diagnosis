@@ -1,0 +1,57 @@
+# Class to represent the medical knowledge base
+class MedicalKnowledgeBase:
+    def __init__(self):
+        self.facts = []   # List of known facts like symptoms
+        self.rules = []   # Inference rules like symptoms → disease
+
+    # Add a known fact (e.g., symptom of a patient)
+    def add_fact(self, fact):
+        self.facts.append(fact)
+
+    # Add a rule (e.g., if these symptoms, then this disease)
+    def add_rule(self, conditions, result):
+        self.rules.append((conditions, result))
+
+    # Check if a conclusion (query) can be inferred
+    def infer(self, query):
+        inferred = set()
+        to_check = [query]
+
+        while to_check:
+            current = to_check.pop()
+            
+            # If the query is already a known fact, it's inferred
+            if current in self.facts:
+                inferred.add(current)
+                continue
+
+            # Check rules to infer the query
+            for conditions, result in self.rules:
+                if result == current and all(c in inferred or c in self.facts for c in conditions):
+                    inferred.add(result)
+                    to_check.extend(conditions)
+
+        return query in inferred
+
+
+# Create the knowledge base
+kb = MedicalKnowledgeBase()
+
+# Add known facts: symptoms the patient has
+kb.add_fact("has_symptom(Patient, Fever)")
+kb.add_fact("has_symptom(Patient, Cough)")
+
+# Add rules:
+# If patient has Fever AND Cough, then they have Flu
+kb.add_rule(["has_symptom(Patient, Fever)", "has_symptom(Patient, Cough)"], "has_disease(Patient, Flu)")
+
+# If patient has Flu, the treatment is Antiviral
+kb.add_rule(["has_disease(Patient, Flu)"], "treatment_for(Patient, Antiviral)")
+
+# Ask the system to infer diagnosis and treatment
+has_flu = kb.infer("has_disease(Patient, Flu)")
+needs_treatment = kb.infer("treatment_for(Patient, Antiviral)")
+
+# Print results
+print("Diagnosis: Flu" if has_flu else "Diagnosis: Unknown")
+print("Treatment: Antiviral" if needs_treatment else "Treatment: Not Suggested")
