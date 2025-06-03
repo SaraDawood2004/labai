@@ -1,0 +1,24 @@
+% Example graph
+edge(a, b).
+edge(a, c).
+edge(b, d).
+edge(c, d).
+edge(d, e).
+
+% Undirected
+connected(X, Y) :- edge(X, Y).
+connected(X, Y) :- edge(Y, X).
+
+% BFS algorithm
+bfs(Start, Goal, Path) :-
+    bfs([[Start]], Goal, RevPath),
+    reverse(RevPath, Path).
+
+bfs([[Goal|Rest]|_], Goal, [Goal|Rest]).
+bfs([ [Current|Rest] | Others ], Goal, Path) :-
+    findall([Next,Current|Rest],
+            (connected(Current, Next),
+             \+ member(Next, [Current|Rest])),
+            NewPaths),
+    append(Others, NewPaths, Queue),
+    bfs(Queue, Goal, Path).
