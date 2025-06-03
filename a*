@@ -1,0 +1,45 @@
+import heapq
+
+# Terrain costs
+costs = {
+    'O': 1, 'M': 5, 'U': 3, 'E': 10, 'D': 7, 'W': 999, 'G': 1
+}
+
+# Grid map
+grid = [
+    ['O', 'O', 'M', 'O', 'E'],
+    ['O', 'U', 'O', 'D', 'O'],
+    ['O', 'O', 'O', 'O', 'O'],
+    ['E', 'M', 'O', 'W', 'O'],
+    ['O', 'O', 'D', 'O', 'G']
+]
+
+# Valid moves: up, down, left, right
+dirs = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+def find_path(start, goal):
+    heap = [(0, start, [start])]
+    visited = set()
+
+    while heap:
+        cost, (r, c), path = heapq.heappop(heap)
+        if (r, c) == goal:
+            return path
+        if (r, c) in visited:
+            continue
+        visited.add((r, c))
+
+        for dr, dc in dirs:
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < 5 and 0 <= nc < 5:
+                if (nr, nc) not in visited:
+                    next_cost = cost + costs[grid[nr][nc]]
+                    heapq.heappush(heap, (next_cost, (nr, nc), path + [(nr, nc)]))
+
+    return "No path"
+
+# Run
+start = (0, 0)
+goal = (4, 4)
+path = find_path(start, goal)
+print("Path:", path)
