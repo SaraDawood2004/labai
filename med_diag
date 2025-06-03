@@ -1,0 +1,52 @@
+# Class to represent the medical knowledge base
+class MedicalKnowledgeBase:
+    def __init__(self):
+        self.facts = []   # List of known facts like symptoms
+        self.rules = []   # Inference rules like symptoms → disease
+
+    # Add a known fact (e.g., symptom of a patient)
+    def add_fact(self, fact):
+        self.facts.append(fact)
+
+    # Add a rule (e.g., if these symptoms, then this disease)
+    def add_rule(self, conditions, result):
+        self.rules.append((conditions, result))
+
+    # Check if a conclusion (query) can be inferred
+    def infer(self, query):
+        inferred = set()
+        to_check = [query]
+
+        while to_check:
+            current = to_check.pop()
+
+            if current in self.facts:
+                inferred.add(current)
+                continue
+
+            for conditions, result in self.rules:
+                if result == current and all(c in inferred or c in self.facts for c in conditions):
+                    inferred.add(result)
+                    to_check.extend(conditions)
+
+        return query in inferred
+
+
+# Create a new knowledge base
+kb = MedicalKnowledgeBase()
+
+# Add known symptoms
+kb.add_fact("Fever")
+kb.add_fact("Cough")
+
+# Add rules
+kb.add_rule(["Fever", "Cough"], "Flu")                # If fever and cough → flu
+kb.add_rule(["Flu"], "Give Antiviral Medicine")       # If flu → give medicine
+
+# Check diagnosis and treatment using infer()
+has_flu = kb.infer("Flu")
+give_medicine = kb.infer("Give Antiviral Medicine")
+
+# Print the results
+print("Diagnosis:", "Flu" if has_flu else "Unknown")
+print("Treatment:", "Antiviral Medicine" if give_medicine else "No Treatment")
