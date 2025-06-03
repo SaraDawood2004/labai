@@ -1,0 +1,42 @@
+import random
+import math
+
+# Define nodes and initial random connections
+nodes = ["A", "B", "C", "D", "E"]
+connections = [(random.choice(nodes), random.choice(nodes)) for _ in range(5)]
+
+# Cost function: we simulate "latency"
+def cost(network):
+    return sum(abs(ord(a) - ord(b)) for a, b in network)
+
+# Simulated Annealing Algorithm
+def simulated_annealing(network, T=100.0, cooling=0.9, min_T=1):
+    current = network[:]
+    best = current
+    best_cost = cost(current)
+
+    while T > min_T:
+        # Make a random change
+        neighbor = current[:]
+        index = random.randint(0, len(neighbor) - 1)
+        neighbor[index] = (random.choice(nodes), random.choice(nodes))
+
+        # Calculate cost difference
+        current_cost = cost(current)
+        neighbor_cost = cost(neighbor)
+        delta = neighbor_cost - current_cost
+
+        # Accept new config if better or probabilistically
+        if delta < 0 or random.random() < math.exp(-delta / T):
+            current = neighbor
+            if neighbor_cost < best_cost:
+                best = neighbor
+                best_cost = neighbor_cost
+
+        T *= cooling  # Reduce temperature
+
+    return best
+
+# Run the optimization
+optimized = simulated_annealing(connections)
+print("Optimized Network:", optimized)
